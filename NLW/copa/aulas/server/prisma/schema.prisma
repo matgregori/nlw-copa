@@ -20,4 +20,53 @@ model Pool { //Nome da tabela vai ser Pool
   title String 
   code String @unique // @unique é para não permitir duplicidade no campo.
   createdAt DateTime @default(now()) // now() serve para retorna a data e hora atual para ser registrado no campo.
+  ownerId String?
+
+  participants Participant[]
+  owner User? @relation(fields: [ownerId], references: [id])
+}
+
+model Participant {
+  id String @id @default(cuid())
+  userId String
+  poolId String
+
+  guessess Guess[]
+  user User @relation(fields: [userId], references: [id])
+  pool Pool @relation(fields: [poolId], references: [id])
+
+  @@unique([userId, poolId]) // Comando para indicar que não deve ter mais de um registro com o mesmo userId e poolId.
+}
+
+model User {
+  id String @id @default(cuid())
+  name String
+  email String @unique
+  avatarUrl String? //Colocando o simbolo "?" diz que o campo pode ser nulo.
+  createdAt DateTime @default(now())
+
+  participatingAt Participant[]
+  ownPools Pool[]
+}
+
+model Game {
+  id String @id @default(cuid())
+  date DateTime
+  firstTeamCountryCode String
+  secondTeamCountryCode String
+
+  guessess Guess[]
+}
+
+model Guess {
+  id String @id @default(cuid())
+  firstTeamPoints Int
+  secondTeamPoints Int
+  createdAt DateTime @default(now())
+
+  gameId String
+  game Game @relation(fields: [gameId], references: [id])
+
+  participantId String
+  participant Participant @relation(fields: [participantId], references: [id])
 }
